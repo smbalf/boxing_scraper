@@ -1,32 +1,82 @@
 # RANDOM FILE FOR TESTING SCRIPTS
 
-"""list = ['\n\n                    Gennadiy Golovkin\n    ', '  middle\n', '45', '\n        240\n      ', '2006-07-29\n', '40', 'orthodox', '5′ 10½″ \xa0 / \xa0 179cm', '70″ \xa0 / \xa0 178cm', 'Los Angeles, California, USA', ' Karaganda, Kazakhstan\n']
 
-
-no_slash_n = [whitespace.replace('\n', '') for whitespace in list]
-no_space = [whitespace.replace(' ', '') for whitespace in no_slash_n]
-
-boxer_data = []
-
-x = 0
-for item in no_space:
-    if x == 7 or x == 8:
-        boxer_data.append(item[-5:-2])
-    else:
-        boxer_data.append(item)
-    x+=1
-
-"""
-
+import os
+from urllib.request import urlopen, Request
+from bs4 import BeautifulSoup
 import csv
+import re
 
-with open('boxrec_top_50_urls.csv', 'r') as top_50_urls_csv:
-        reader = csv.reader(top_50_urls_csv)
-        top_50_urls_list = []
-        for row in reader:
-            top_50_urls_list.append(', '.join(row))
 
-        for url in top_50_urls_list:
-            #print(url)
-            boxrec_url = 'https://boxrec.com' + url
-            print(boxrec_url)
+os.system('cls')
+
+
+boxrec_url = 'https://boxrec.com/en/box-pro/356831'
+
+req = Request(boxrec_url, headers={'User-Agent':'Mozilla/5.0'})
+html = urlopen(req)
+bs = BeautifulSoup(html.read(), 'html.parser')
+boxer_name = bs.find('h1').get_text()
+
+boxrec_tables = bs.find_all('td', {'class': 'rowLabel'})
+print(len(boxrec_tables))
+
+key_list = ['name']
+dirty_value_list = []
+dirty_value_list.append(boxer_name)
+
+clean_value_list = []
+
+
+for table_value in boxrec_tables:
+    first_td = table_value.find_all('b')
+    for item in first_td:
+        key = item.get_text()
+        value = item.find_next().get_text()
+        key_list.append(key)
+        dirty_value_list.append(value)
+
+def clean_data(dirty_list, clean_list):
+    no_pct = [pct.replace('%', '') for pct in dirty_list]
+    no_slash_n = [whitespace.replace('\n', '') for whitespace in no_pct]
+    no_fwd_slash = [fwd_slash.replace('/', '') for fwd_slash in no_slash_n]
+    no_space = [whitespace.replace(' ', '') for whitespace in no_fwd_slash]
+    no_xa0 = [xa0.replace('\xa0', '') for xa0 in no_space]
+    no_comma = [comma.replace(',', ' ') for comma in no_xa0]
+    for value in no_comma:
+        clean_list.append(value)
+
+clean_data(dirty_value_list, clean_value_list)
+
+zip_iter = zip(key_list, clean_value_list)
+
+boxer_dict = dict(zip_iter)
+
+csv_headers = ['name', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
+csv_values = [boxer_dict[header] for header in csv_headers]
+
+zip_csv = zip(csv_headers, csv_values)
+csv_dict = dict(zip_csv)
+
+
+for item in csv_dict:
+    if item == 'height':
+        if csv_dict[item] != '':
+            csv_dict[item] = csv_dict[item][-5:-2]
+    elif item == 'reach':
+        if csv_dict[item] != '':
+            csv_dict[item] = csv_dict[item][-5:-2]
+    elif item == 'name':
+            split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
+            csv_dict[item] = ' '.join(split_name)
+    if csv_dict[item] == '':
+        csv_dict[item] = 'NODATA'
+
+
+with open('boxrec_tables.csv', 'a', encoding="utf-8", newline='') as boxrec_csv:
+    writer = csv.DictWriter(boxrec_csv, fieldnames=csv_headers)
+    writer.writerow(csv_dict)
+
+
+
+
