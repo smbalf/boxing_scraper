@@ -9,13 +9,16 @@ import re
 os.system('cls')
 
 
-boxer_data = []
 key_list = ['name']
 dirty_value_list = []
 clean_value_list = []
 
 
 def rotate_boxer_urls():
+    global key_list
+    global dirty_value_list
+    global clean_value_list
+
     with open('boxrec_top_50_urls.csv', 'r') as top_50_urls_csv:
         reader = csv.reader(top_50_urls_csv)
         top_50_urls_list = []
@@ -30,8 +33,12 @@ def rotate_boxer_urls():
         bs = BeautifulSoup(html.read(), 'html.parser')
 
         grab_boxer_data(bs)
-        time.sleep(2)
+        time.sleep(3)
         clean_and_write_to_csv(dirty_value_list, clean_value_list)
+        time.sleep(3)
+        key_list = ['name']
+        dirty_value_list = []
+        clean_value_list = []
         print('######################')
         print(f'DATA ROW ADDED {boxrec_url}')
 
@@ -44,13 +51,13 @@ def grab_boxer_data(soup):
 
     if access == 0:
         print('REROUT YOUR DAMN VPN')
-        return None
+        print('closing scraper...')
+        exit()
     else:
         print('SCRAPING...')
 
     for table_value in boxrec_tables:
         first_td = table_value.find_all('b')
-        print(f'SCRAPED {len(first_td)} DATA POINTS')
         for item in first_td:
             key = item.get_text()
             value = item.find_next().get_text()
@@ -68,16 +75,21 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     for value in no_comma:
         clean_list.append(value)
 
-    zip_iter = zip(key_list, clean_value_list)
+    if key_list[15] == 'reach':
+        zip_iter = zip(key_list, clean_value_list)
+    elif key_list[15] != 'reach':
+        key_list.insert(15, 'reach')
+        clean_value_list.insert(15, '')
 
-    boxer_dict = dict(zip_iter)
+    boxer_dict = dict(zip(key_list, clean_value_list))
+    print(boxer_dict['name'])
 
     csv_headers = ['name', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
     csv_values = [boxer_dict[header] for header in csv_headers]
-
-    zip_csv = zip(csv_headers, csv_values)
+    
+    csv_dict = dict(zip(csv_headers, csv_values))
     print('CREATED CSV DICTIONARY, FINAL CLEANING')
-    csv_dict = dict(zip_csv)
+    
 
     for item in csv_dict:
         if item == 'height':
@@ -87,6 +99,12 @@ def clean_and_write_to_csv(dirty_list, clean_list):
             if csv_dict[item] != '':
                 csv_dict[item] = csv_dict[item][-5:-2]
         elif item == 'name':
+                split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
+                csv_dict[item] = ' '.join(split_name)
+        elif item == 'residence':
+                split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
+                csv_dict[item] = ' '.join(split_name)
+        elif item == 'birth place':
                 split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
                 csv_dict[item] = ' '.join(split_name)
         if csv_dict[item] == '':

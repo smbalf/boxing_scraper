@@ -11,7 +11,7 @@ import re
 os.system('cls')
 
 
-boxrec_url = 'https://boxrec.com/en/box-pro/356831'
+boxrec_url = 'https://boxrec.com/en/box-pro/724390'
 
 req = Request(boxrec_url, headers={'User-Agent':'Mozilla/5.0'})
 html = urlopen(req)
@@ -19,7 +19,6 @@ bs = BeautifulSoup(html.read(), 'html.parser')
 boxer_name = bs.find('h1').get_text()
 
 boxrec_tables = bs.find_all('td', {'class': 'rowLabel'})
-print(len(boxrec_tables))
 
 key_list = ['name']
 dirty_value_list = []
@@ -48,16 +47,28 @@ def clean_data(dirty_list, clean_list):
 
 clean_data(dirty_value_list, clean_value_list)
 
-zip_iter = zip(key_list, clean_value_list)
+if key_list[15] == 'reach':
+    zip_iter = zip(key_list, clean_value_list)
+elif key_list[15] != 'reach':
+    key_list.insert(15, 'reach')
+    clean_value_list.insert(15, '')
 
-boxer_dict = dict(zip_iter)
+boxer_dict = dict(zip(key_list, clean_value_list))
+
+print(boxer_dict)
 
 csv_headers = ['name', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
-csv_values = [boxer_dict[header] for header in csv_headers]
+csv_values = []
+try:
+    csv_values = [boxer_dict[header] for header in csv_headers]
+    print(csv_values)
+except KeyError:
+    csv_headers.insert(9, 'reach')
+    pass
 
-zip_csv = zip(csv_headers, csv_values)
-csv_dict = dict(zip_csv)
-
+csv_dict = dict(zip(csv_headers, csv_values))
+print('CREATED CSV DICTIONARY, FINAL CLEANING')
+print(csv_dict)
 
 for item in csv_dict:
     if item == 'height':
@@ -69,10 +80,16 @@ for item in csv_dict:
     elif item == 'name':
             split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
             csv_dict[item] = ' '.join(split_name)
+    elif item == 'residence':
+            split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
+            csv_dict[item] = ' '.join(split_name)
+    elif item == 'birth place':
+            split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
+            csv_dict[item] = ' '.join(split_name)
     if csv_dict[item] == '':
         csv_dict[item] = 'NODATA'
 
-
+print(csv_dict)
 with open('boxrec_tables.csv', 'a', encoding="utf-8", newline='') as boxrec_csv:
     writer = csv.DictWriter(boxrec_csv, fieldnames=csv_headers)
     writer.writerow(csv_dict)
