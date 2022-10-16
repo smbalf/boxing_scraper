@@ -1,0 +1,27 @@
+1. list of urls for page displaying top 50 in each men's weight category. [x]
+
+2. from list of urls, obtain urls of specific top 50 boxers. [x]
+
+3. obtain boxer specific data: [-]
+- name
+- wins/loss/draws/wko/lko
+- bouts
+- age
+- birthplace
+- residence
+- debut
+- stance
+- height
+- reach 
+- titles
+
+4. obtain bout data:
+- date
+- weight
+- opponent + opponent w-l-d (is in current top 50?)
+- result
+- rounds
+
+5. obtain compubox stats for fights:
+- try obtaining access to compubox
+- try finding compubox stats for fights in boxing articles to scrapes
