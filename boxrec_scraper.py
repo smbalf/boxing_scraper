@@ -9,7 +9,7 @@ import re
 os.system('cls')
 
 
-key_list = ['name']
+key_list = ['name', 'division rating']
 dirty_value_list = []
 clean_value_list = []
 
@@ -36,16 +36,13 @@ def rotate_boxer_urls():
         time.sleep(3)
         clean_and_write_to_csv(dirty_value_list, clean_value_list)
         time.sleep(3)
-        key_list = ['name']
+        key_list = ['name', 'division rating']
         dirty_value_list = []
         clean_value_list = []
         print('######################')
         print(f'DATA ROW ADDED {boxrec_url}')
 
 def grab_boxer_data(soup):
-    boxer_name = soup.find('h1').get_text()
-    dirty_value_list.append(boxer_name)
-
     boxrec_tables = soup.find_all('td', {'class': 'rowLabel'})
     access = len(boxrec_tables)
 
@@ -55,6 +52,19 @@ def grab_boxer_data(soup):
         exit()
     else:
         print('SCRAPING...')
+
+    boxer_name = soup.find('h1').get_text()
+    dirty_value_list.append(boxer_name)
+
+    ratings = []
+    for link in soup.find_all('a', href=re.compile('^(/en/ratings?)')):
+        ratings.append(link.get_text())
+
+    no_slash_n = [whitespace.replace('\n', '') for whitespace in ratings]
+    no_space = [whitespace.replace(' ', '') for whitespace in no_slash_n]
+    rating = no_space[1]
+    division_rating = rating[1:3]
+    dirty_value_list.append(division_rating)
 
     for table_value in boxrec_tables:
         first_td = table_value.find_all('b')
@@ -75,16 +85,14 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     for value in no_comma:
         clean_list.append(value)
 
-    if key_list[15] == 'reach':
-        zip_iter = zip(key_list, clean_value_list)
-    elif key_list[15] != 'reach':
-        key_list.insert(15, 'reach')
-        clean_value_list.insert(15, '')
+    if key_list[16] != 'reach':
+        key_list.insert(16, 'reach')
+        clean_value_list.insert(16, '')
 
     boxer_dict = dict(zip(key_list, clean_value_list))
     print(boxer_dict['name'])
 
-    csv_headers = ['name', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
+    csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
     csv_values = [boxer_dict[header] for header in csv_headers]
     
     csv_dict = dict(zip(csv_headers, csv_values))
@@ -116,6 +124,4 @@ def clean_and_write_to_csv(dirty_list, clean_list):
         writer.writerow(csv_dict)
 
 
-
 rotate_boxer_urls()
-

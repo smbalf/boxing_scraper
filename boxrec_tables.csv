@@ -1,6 +1,6 @@
-name,division,bouts,rounds,KOs,debut,age,stance,height,reach,residence,birth place
-Gavin Gwynne,light,18,130,16.67,2016-10-08,32,orthodox,183,NODATA,Treharris Wales United Kingdom,Merthyr Tydfil Wales United Kingdom
-Magomed Madiev,middle,19,127,26.32,2015-08-23,28,orthodox,180,NODATA,Makhachkala Russia,Makhachkala Russia
-Vasyl Lomachenko,light,18,164,61.11,2014-03-01,34,southpaw,170,NODATA,Oxnard California,Bilhorod Dnistrovskyi Ukraine
-Josesito Lopez,welter,48,299,43.75,2003-02-08,38,orthodox,177,NODATA,Riverside California,Riverside California
-Marcelo Esteban Coceres,middle,37,214,45.95,2012-02-24,31,orthodox,182,NODATA,Buenos Aires Distrito Federal Argentina,Villaguay Entre Rios Argentina
+name,division rating,division,bouts,rounds,KOs,debut,age,stance,height,reach,residence,birth place
+Gavin Gwynne,43,light,18,130,16.67,2016-10-08,32,orthodox,183,NODATA,Treharris Wales United Kingdom,Merthyr Tydfil Wales United Kingdom
+Magomed Madiev,46,middle,19,127,26.32,2015-08-23,28,orthodox,180,NODATA,Makhachkala Russia,Makhachkala Russia
+Vasyl Lomachenko,3,light,18,164,61.11,2014-03-01,34,southpaw,170,NODATA,Oxnard California,Bilhorod Dnistrovskyi Ukraine
+Josesito Lopez,37,welter,48,299,43.75,2003-02-08,38,orthodox,177,NODATA,Riverside California,Riverside California
+Marcelo Esteban Coceres,39,middle,37,214,45.95,2012-02-24,31,orthodox,182,NODATA,Buenos Aires Distrito Federal Argentina,Villaguay Entre Rios Argentina

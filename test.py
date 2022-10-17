@@ -18,11 +18,21 @@ html = urlopen(req)
 bs = BeautifulSoup(html.read(), 'html.parser')
 boxer_name = bs.find('h1').get_text()
 
+ratings = []
+for link in bs.find_all('a', href=re.compile('^(/en/ratings?)')):
+    ratings.append(link.get_text())
+
+no_slash_n = [whitespace.replace('\n', '') for whitespace in ratings]
+no_space = [whitespace.replace(' ', '') for whitespace in no_slash_n]
+rating = no_space[1]
+division_rating = rating[1:3]
+
 boxrec_tables = bs.find_all('td', {'class': 'rowLabel'})
 
-key_list = ['name']
+key_list = ['name', 'division rating']
 dirty_value_list = []
 dirty_value_list.append(boxer_name)
+dirty_value_list.append(division_rating)
 
 clean_value_list = []
 
@@ -47,24 +57,18 @@ def clean_data(dirty_list, clean_list):
 
 clean_data(dirty_value_list, clean_value_list)
 
-if key_list[15] == 'reach':
+if key_list[16] == 'reach':
     zip_iter = zip(key_list, clean_value_list)
-elif key_list[15] != 'reach':
-    key_list.insert(15, 'reach')
-    clean_value_list.insert(15, '')
+elif key_list[16] != 'reach':
+    key_list.insert(16, 'reach')
+    clean_value_list.insert(16, '')
 
 boxer_dict = dict(zip(key_list, clean_value_list))
 
 print(boxer_dict)
 
-csv_headers = ['name', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
-csv_values = []
-try:
-    csv_values = [boxer_dict[header] for header in csv_headers]
-    print(csv_values)
-except KeyError:
-    csv_headers.insert(9, 'reach')
-    pass
+csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
+csv_values = [boxer_dict[header] for header in csv_headers]
 
 csv_dict = dict(zip(csv_headers, csv_values))
 print('CREATED CSV DICTIONARY, FINAL CLEANING')
