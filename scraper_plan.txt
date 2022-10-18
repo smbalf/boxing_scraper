@@ -6,7 +6,7 @@
 - name [X]
 - division rating [x]
 - division [x]
-- wins/loss/draws/wko/lko [TO DO]
+- wins/loss/draws/wko/lko [x]
 - bouts [x]
 - KOs [x]
 - age [x]

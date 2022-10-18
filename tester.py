@@ -3,6 +3,7 @@ from requests.exceptions import HTTPError
 from bs4 import BeautifulSoup
 import re
 import csv
+from urllib.request import urlopen, Request # no longer used
 import time
 
 
@@ -17,13 +18,8 @@ def rotate_boxer_urls():
     global dirty_value_list
     global clean_value_list
 
-    with open('boxrec_top_50_urls.csv', 'r') as top_50_urls_csv:
-        reader = csv.reader(top_50_urls_csv)
-        top_50_urls_list = []
-        for row in reader:
-            top_50_urls_list.append(', '.join(row))
-
-    for url in top_50_urls_list:
+    url_list = ['/en/box-pro/659772', '/en/box-pro/764718']
+    for url in url_list:
         boxrec_url = 'https://boxrec.com' + url
         headers = {'User-Agent':'Mozilla/5.0'}
         print(boxrec_url)
@@ -41,69 +37,23 @@ def rotate_boxer_urls():
             bs = BeautifulSoup(response.text, 'lxml')
 
             grab_boxer_data(bs)
-            
             time.sleep(1)
             clean_and_write_to_csv(dirty_value_list, clean_value_list)
-            
             time.sleep(1)
             write_to_csv(csv_headers, csv_dict)
-            
             key_list = ['name', 'division rating', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
             dirty_value_list = []
             clean_value_list = []
-            
-            print('---------------------------------------------')
+            print('######################')
 
 def grab_boxer_data(soup):
     boxrec_tables = soup.find_all('td', {'class': 'rowLabel'})
-    access = len(boxrec_tables)
-
-    if access == 0:
-        print('REROUT YOUR DAMN VPN')
-        print('closing scraper...')
-        exit()
-    else:
-        print('SCRAPING...')
-        time.sleep(1.5)
-
-    boxer_name = soup.find('h1').get_text()
-    dirty_value_list.append(boxer_name)
-
-    ratings = []
-    for link in soup.find_all('a', href=re.compile('^(/en/ratings?)')):
-        ratings.append(link.get_text())
-
-    no_slash_n = [whitespace.replace('\n', '') for whitespace in ratings]
-    no_space = [whitespace.replace(' ', '') for whitespace in no_slash_n]
-    rating = no_space[1]
-    division_rating = rating[1:3]
-    dirty_value_list.append(division_rating)
-
-    wins = soup.find('td', {'class': 'bgW'}).get_text()
-    dirty_value_list.append(wins)
-    losses = soup.find('td', {'class': 'bgL'}).get_text()
-    dirty_value_list.append(losses)
-    draws = soup.find('td', {'class': 'bgD'}).get_text()
-    dirty_value_list.append(draws)
-    ko_wins = soup.find('th', {'class': 'textWon'}).get_text()
-    dirty_value_list.append(ko_wins[:-4])
-    ko_losses = soup.find('th', {'class': 'textLost'}).get_text()
-    dirty_value_list.append(ko_losses[:-4])
 
     for table_value in boxrec_tables:
         first_td = table_value.find_all('b')
         for item in first_td:
-            key = item.get_text()
-            value = item.find_next().get_text()
-            key_list.append(key)
-            dirty_value_list.append(value)
-            
             if item.get_text() == 'reach':
-                print('found reach')
-                value_reach = item.find_next().find_next().find_next()
-                boxer_reach = value_reach.get_text()
-                key_list.append(key)
-                dirty_value_list.append(boxer_reach)
+                pass
 
 
 def clean_and_write_to_csv(dirty_list, clean_list):
@@ -121,9 +71,13 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     for value in no_comma:
         clean_list.append(value)
 
-    if key_list[20] != 'reach':
-        key_list.insert(20, 'reach')
+    if key_list[20] != 'height':
+        key_list.insert(20, 'height')
         clean_value_list.insert(20, '')
+    
+    elif key_list[21] != 'reach':
+        key_list.insert(21, 'reach')
+        clean_value_list.insert(21, '')
 
     boxer_dict = dict(zip(key_list, clean_value_list))
     print(boxer_dict['name'])
@@ -132,7 +86,7 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     
     csv_dict = dict(zip(csv_headers, csv_values))
     print('CREATED CSV DICTIONARY, FINAL CLEANING')
-    time.sleep(1)
+    time.sleep(1.5)
     
 
     for item in csv_dict:
@@ -154,14 +108,14 @@ def clean_and_write_to_csv(dirty_list, clean_list):
         if csv_dict[item] == '':
             csv_dict[item] = 'NODATA'
 
+        for k, v in csv_dict.items():
+            print(k, v)
+
         print('DATA CLEANED')
 
 
 def write_to_csv(csv_header=csv_headers, csv_dict=csv_dict):
-    with open('boxrec_tables.csv', 'a', encoding="utf-8", newline='') as boxrec_csv:
+    with open('test.csv', 'a', encoding="utf-8", newline='') as boxrec_csv:
         writer = csv.DictWriter(boxrec_csv, fieldnames=csv_headers)
         print('WRITING TO CSV...')
         writer.writerow(csv_dict)
-
-
-rotate_boxer_urls()
