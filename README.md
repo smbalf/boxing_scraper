@@ -1,3 +1,5 @@
 # boxing_scraper
  scraping the web for boxing data
- we write dis up full when official k
+ first targetting boxrec
+ would like to obtain compubox data too
+ perhaps integrating jabbr.ai data too if can obtain
