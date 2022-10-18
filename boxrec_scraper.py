@@ -154,7 +154,7 @@ def clean_and_write_to_csv(dirty_list, clean_list):
         if csv_dict[item] == '':
             csv_dict[item] = 'NODATA'
 
-        print('DATA CLEANED')
+    print('DATA CLEANED')
 
 
 def write_to_csv(csv_header=csv_headers, csv_dict=csv_dict):
