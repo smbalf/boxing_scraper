@@ -3,17 +3,19 @@
 2. from list of urls, obtain urls of specific top 50 boxers. [x]
 
 3. obtain boxer specific data: [-]
-- name
-- wins/loss/draws/wko/lko
-- bouts
-- age
-- birthplace
-- residence
-- debut
-- stance
-- height
-- reach 
-- titles
+- name [X]
+- division rating [x]
+- division [x]
+- wins/loss/draws/wko/lko [TO DO]
+- bouts [x]
+- KOs [x]
+- age [x]
+- birthplace [x]
+- residence [x]
+- debut [x]
+- stance [x]
+- height [x]
+- reach [TO DO]
 
 4. obtain bout data:
 - date

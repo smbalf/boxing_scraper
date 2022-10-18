@@ -8,10 +8,10 @@ import time
 
 
 
-key_list = ['name', 'division rating']
+key_list = ['name', 'division rating', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
 dirty_value_list = []
 clean_value_list = []
-csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
+csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
 csv_dict = {}
 
 def rotate_boxer_urls():
@@ -47,7 +47,7 @@ def rotate_boxer_urls():
             clean_and_write_to_csv(dirty_value_list, clean_value_list)
             time.sleep(3)
             write_to_csv(csv_headers, csv_dict)
-            key_list = ['name', 'division rating']
+            key_list = ['name', 'division rating', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
             dirty_value_list = []
             clean_value_list = []
             print('######################')
@@ -77,6 +77,17 @@ def grab_boxer_data(soup):
     division_rating = rating[1:3]
     dirty_value_list.append(division_rating)
 
+    wins = soup.find('td', {'class': 'bgW'}).get_text()
+    dirty_value_list.append(wins)
+    losses = soup.find('td', {'class': 'bgL'}).get_text()
+    dirty_value_list.append(losses)
+    draws = soup.find('td', {'class': 'bgD'}).get_text()
+    dirty_value_list.append(draws)
+    ko_wins = soup.find('th', {'class': 'textWon'}).get_text()
+    dirty_value_list.append(ko_wins[:-4])
+    ko_losses = soup.find('th', {'class': 'textLost'}).get_text()
+    dirty_value_list.append(ko_losses[:-4])
+
     for table_value in boxrec_tables:
         first_td = table_value.find_all('b')
         for item in first_td:
@@ -84,6 +95,7 @@ def grab_boxer_data(soup):
             value = item.find_next().get_text()
             key_list.append(key)
             dirty_value_list.append(value)
+
 
 def clean_and_write_to_csv(dirty_list, clean_list):
     global csv_headers
@@ -100,9 +112,9 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     for value in no_comma:
         clean_list.append(value)
 
-    if key_list[16] != 'reach':
-        key_list.insert(16, 'reach')
-        clean_value_list.insert(16, '')
+    if key_list[21] != 'reach':
+        key_list.insert(21, 'reach')
+        clean_value_list.insert(21, '')
 
     boxer_dict = dict(zip(key_list, clean_value_list))
     print(boxer_dict['name'])
