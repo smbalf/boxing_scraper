@@ -13,14 +13,15 @@ csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 
 csv_dict = {}
 
 
-
 def rotate_boxer_urls():
     global key_list
     global dirty_value_list
     global clean_value_list
 
-    API_KEY = 'HLVDxWeJsl0mX31dNteVKL1Mfp8qZStb'
     SCRAPER_URL = 'https://api.webscrapingapi.com/v1'
+
+    with open('api_key.txt', 'r') as key_file:
+        API_KEY = key_file.read()
 
     with open('boxrec_top_50_urls.csv', 'r') as top_50_urls_csv:
         reader = csv.reader(top_50_urls_csv)
@@ -51,13 +52,10 @@ def rotate_boxer_urls():
 
             grab_boxer_data(bs)
             
-            time.sleep(1)
             clean_lists(dirty_value_list, clean_value_list)
             
-            time.sleep(1)
             clean_dict(csv_dict)
 
-            time.sleep(1)
             write_to_csv(csv_headers, csv_dict)
             
             key_list = ['name', 'division rating', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
@@ -75,8 +73,7 @@ def grab_boxer_data(soup):
         print('closing scraper...')
         exit()
     else:
-        print('SCRAPING...')
-        time.sleep(1)
+        print(f'SCRAPING...')
 
     boxer_name = soup.find('h1').get_text()
     dirty_value_list.append(boxer_name)
@@ -85,11 +82,15 @@ def grab_boxer_data(soup):
     for link in soup.find_all('a', href=re.compile('^(/en/ratings?)')):
         ratings.append(link.get_text())
 
-    no_slash_n = [whitespace.replace('\n', '') for whitespace in ratings]
-    no_space = [whitespace.replace(' ', '') for whitespace in no_slash_n]
-    rating = no_space[1]
-    division_rating = rating[1:3]
-    dirty_value_list.append(division_rating)
+    try:
+        no_slash_n = [whitespace.replace('\n', '') for whitespace in ratings]
+        no_space = [whitespace.replace(' ', '') for whitespace in no_slash_n]
+        rating = no_space[1]
+        division_rating = rating[1:3]
+        dirty_value_list.append(division_rating)
+    
+    except Exception:
+        dirty_value_list.append('')
 
     wins = soup.find('td', {'class': 'bgW'}).get_text()
     dirty_value_list.append(wins)
@@ -122,7 +123,6 @@ def clean_lists(dirty_list, clean_list):
     global csv_dict
 
     print('CLEANING THE DATA...')
-    time.sleep(1)
 
     no_pct = [pct.replace('%', '') for pct in dirty_list]
     no_slash_n = [whitespace.replace('\n', '') for whitespace in no_pct]
@@ -134,9 +134,7 @@ def clean_lists(dirty_list, clean_list):
         clean_list.append(value)
 
     target_list = ['name','division rating','division','bouts','rounds','KOs','debut','age','stance','height','reach','residence','birth place', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
-    
-    x = 0
-    
+      
     for key in target_list:
         if key in key_list:
             pass
@@ -151,7 +149,6 @@ def clean_lists(dirty_list, clean_list):
     
     csv_dict = dict(zip(csv_headers, csv_values))
     print('CREATED CSV DICTIONARY')
-    time.sleep(1)
     
 
 def clean_dict(csv_dict=csv_dict):
