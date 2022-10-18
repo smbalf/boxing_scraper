@@ -12,10 +12,15 @@ clean_value_list = []
 csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
 csv_dict = {}
 
+
+
 def rotate_boxer_urls():
     global key_list
     global dirty_value_list
     global clean_value_list
+
+    API_KEY = 'HLVDxWeJsl0mX31dNteVKL1Mfp8qZStb'
+    SCRAPER_URL = 'https://api.webscrapingapi.com/v1'
 
     with open('boxrec_top_50_urls.csv', 'r') as top_50_urls_csv:
         reader = csv.reader(top_50_urls_csv)
@@ -25,11 +30,15 @@ def rotate_boxer_urls():
 
     for url in top_50_urls_list:
         boxrec_url = 'https://boxrec.com' + url
-        headers = {'User-Agent':'Mozilla/5.0'}
-        print(boxrec_url)
+        api_key = API_KEY
+        PARAMS = {
+            "api_key":api_key,
+            "url": boxrec_url,
+            "render_js":1,
+        }
 
         try:
-            response = requests.get(boxrec_url, headers = headers)
+            response = requests.get(SCRAPER_URL, params=PARAMS )
             response.raise_for_status()
         except HTTPError as http_err:
             print(f'HTTP error occurred: {http_err}')
@@ -43,16 +52,19 @@ def rotate_boxer_urls():
             grab_boxer_data(bs)
             
             time.sleep(1)
-            clean_and_write_to_csv(dirty_value_list, clean_value_list)
+            clean_lists(dirty_value_list, clean_value_list)
             
+            time.sleep(1)
+            clean_dict(csv_dict)
+
             time.sleep(1)
             write_to_csv(csv_headers, csv_dict)
             
             key_list = ['name', 'division rating', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
             dirty_value_list = []
             clean_value_list = []
-            
             print('---------------------------------------------')
+
 
 def grab_boxer_data(soup):
     boxrec_tables = soup.find_all('td', {'class': 'rowLabel'})
@@ -64,7 +76,7 @@ def grab_boxer_data(soup):
         exit()
     else:
         print('SCRAPING...')
-        time.sleep(1.5)
+        time.sleep(1)
 
     boxer_name = soup.find('h1').get_text()
     dirty_value_list.append(boxer_name)
@@ -99,19 +111,19 @@ def grab_boxer_data(soup):
             dirty_value_list.append(value)
             
             if item.get_text() == 'reach':
-                print('found reach')
                 value_reach = item.find_next().find_next().find_next()
                 boxer_reach = value_reach.get_text()
                 key_list.append(key)
                 dirty_value_list.append(boxer_reach)
 
 
-def clean_and_write_to_csv(dirty_list, clean_list):
+def clean_lists(dirty_list, clean_list):
     global csv_headers
     global csv_dict
 
     print('CLEANING THE DATA...')
-    time.sleep(1.5)
+    time.sleep(1)
+
     no_pct = [pct.replace('%', '') for pct in dirty_list]
     no_slash_n = [whitespace.replace('\n', '') for whitespace in no_pct]
     no_fwd_slash = [fwd_slash.replace('/', '') for fwd_slash in no_slash_n]
@@ -121,9 +133,16 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     for value in no_comma:
         clean_list.append(value)
 
-    if key_list[20] != 'reach':
-        key_list.insert(20, 'reach')
-        clean_value_list.insert(20, '')
+    target_list = ['name','division rating','division','bouts','rounds','KOs','debut','age','stance','height','reach','residence','birth place', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
+    
+    x = 0
+    
+    for key in target_list:
+        if key in key_list:
+            pass
+        else:
+            key_list.insert(target_list.index(key), key)
+            clean_list.insert(target_list.index(key), '')
 
     boxer_dict = dict(zip(key_list, clean_value_list))
     print(boxer_dict['name'])
@@ -131,10 +150,11 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     csv_values = [boxer_dict[header] for header in csv_headers]
     
     csv_dict = dict(zip(csv_headers, csv_values))
-    print('CREATED CSV DICTIONARY, FINAL CLEANING')
+    print('CREATED CSV DICTIONARY')
     time.sleep(1)
     
 
+def clean_dict(csv_dict=csv_dict):
     for item in csv_dict:
         if item == 'height':
             if csv_dict[item] != '':
@@ -154,7 +174,7 @@ def clean_and_write_to_csv(dirty_list, clean_list):
         if csv_dict[item] == '':
             csv_dict[item] = 'NODATA'
 
-    print('DATA CLEANED')
+    print('DATA CLEANED, READY FOR CSV')
 
 
 def write_to_csv(csv_header=csv_headers, csv_dict=csv_dict):
