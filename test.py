@@ -13,7 +13,8 @@ import time
 key_list = ['name', 'division rating']
 dirty_value_list = []
 clean_value_list = []
-
+csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
+csv_dict = {}
 
 def rotate_boxer_urls():
     global key_list
@@ -33,27 +34,25 @@ def rotate_boxer_urls():
 
         try:
             response = requests.get(boxrec_url, headers = headers)
-
-            # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')  # Python 3.6
+            print(f'HTTP error occurred: {http_err}')
         except Exception as err:
-            print(f'Other error occurred: {err}')  # Python 3.6
+            print(f'Other error occurred: {err}')
+            
         else:
             response.encoding = 'utf-8' # Optional: requests infers this internally
             bs = BeautifulSoup(response.text, 'lxml')
-            print(bs.find_all('td', {'class':'rowLabel'}))
 
             grab_boxer_data(bs)
             time.sleep(3)
             clean_and_write_to_csv(dirty_value_list, clean_value_list)
             time.sleep(3)
+            write_to_csv(csv_headers, csv_dict)
             key_list = ['name', 'division rating']
             dirty_value_list = []
             clean_value_list = []
             print('######################')
-            print(f'DATA ROW ADDED {boxrec_url}')
 
 def grab_boxer_data(soup):
     boxrec_tables = soup.find_all('td', {'class': 'rowLabel'})
@@ -65,6 +64,7 @@ def grab_boxer_data(soup):
         exit()
     else:
         print('SCRAPING...')
+        time.sleep(1.5)
 
     boxer_name = soup.find('h1').get_text()
     dirty_value_list.append(boxer_name)
@@ -88,7 +88,11 @@ def grab_boxer_data(soup):
             dirty_value_list.append(value)
 
 def clean_and_write_to_csv(dirty_list, clean_list):
+    global csv_headers
+    global csv_dict
+
     print('CLEANING THE DATA...')
+    time.sleep(1.5)
     no_pct = [pct.replace('%', '') for pct in dirty_list]
     no_slash_n = [whitespace.replace('\n', '') for whitespace in no_pct]
     no_fwd_slash = [fwd_slash.replace('/', '') for fwd_slash in no_slash_n]
@@ -105,11 +109,11 @@ def clean_and_write_to_csv(dirty_list, clean_list):
     boxer_dict = dict(zip(key_list, clean_value_list))
     print(boxer_dict['name'])
 
-    csv_headers = ['name', 'division rating', 'division', 'bouts', 'rounds', 'KOs', 'debut', 'age', 'stance', 'height', 'reach', 'residence', 'birth place']
     csv_values = [boxer_dict[header] for header in csv_headers]
     
     csv_dict = dict(zip(csv_headers, csv_values))
     print('CREATED CSV DICTIONARY, FINAL CLEANING')
+    time.sleep(1.5)
     
 
     for item in csv_dict:
@@ -131,9 +135,17 @@ def clean_and_write_to_csv(dirty_list, clean_list):
         if csv_dict[item] == '':
             csv_dict[item] = 'NODATA'
 
-        with open('boxrec_tables.csv', 'a', encoding="utf-8", newline='') as boxrec_csv:
-            writer = csv.DictWriter(boxrec_csv, fieldnames=csv_headers)
-            print('WRITING TO CSV...')
-            writer.writerow(csv_dict)
+        for k, v in csv_dict.items():
+            print(k, v)
+
+        print('DATA CLEANED')
+
+
+def write_to_csv(csv_header=csv_headers, csv_dict=csv_dict):
+    with open('boxrec_tables.csv', 'a', encoding="utf-8", newline='') as boxrec_csv:
+        writer = csv.DictWriter(boxrec_csv, fieldnames=csv_headers)
+        print('WRITING TO CSV...')
+        writer.writerow(csv_dict)
+
 
 rotate_boxer_urls()
