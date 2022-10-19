@@ -3,7 +3,7 @@ from requests.exceptions import HTTPError
 from bs4 import BeautifulSoup
 import re
 import csv
-import time
+from scrapingbee import ScrapingBeeClient
 
 
 key_list = ['name', 'division rating', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
@@ -18,8 +18,6 @@ def rotate_boxer_urls():
     global dirty_value_list
     global clean_value_list
 
-    SCRAPER_URL = 'https://api.webscrapingapi.com/v1'
-
     with open('api_key.txt', 'r') as key_file:
         API_KEY = key_file.read()
 
@@ -32,14 +30,12 @@ def rotate_boxer_urls():
     for url in top_50_urls_list:
         boxrec_url = 'https://boxrec.com' + url
         api_key = API_KEY
-        PARAMS = {
-            "api_key":api_key,
-            "url": boxrec_url,
-            "render_js":1,
-        }
+        PARAMS = {"render_js": 'False'}
+
+        client = ScrapingBeeClient(api_key=api_key)
 
         try:
-            response = requests.get(SCRAPER_URL, params=PARAMS )
+            response = client.get(boxrec_url, params=PARAMS )
             response.raise_for_status()
         except HTTPError as http_err:
             print(f'HTTP error occurred: {http_err}')
@@ -61,6 +57,7 @@ def rotate_boxer_urls():
             key_list = ['name', 'division rating', 'wins', 'losses', 'draws', 'KO wins', 'KO losses']
             dirty_value_list = []
             clean_value_list = []
+            print(boxrec_url)
             print('---------------------------------------------')
 
 
