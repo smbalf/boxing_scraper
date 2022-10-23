@@ -212,7 +212,7 @@ def clean_dict(csv_dict=csv_dict):
                 split_name = re.findall('[A-Z][a-z]+', csv_dict[item])
                 csv_dict[item] = ' '.join(split_name)
         if csv_dict[item] == '':
-            csv_dict[item] = 'NODATA'
+            csv_dict[item] = 'None'
 
     print('DATA CLEANED, READY FOR CSV')
 
