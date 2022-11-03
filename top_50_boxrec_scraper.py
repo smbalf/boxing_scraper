@@ -1,4 +1,3 @@
-from http.cookiejar import Cookie
 import os
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup

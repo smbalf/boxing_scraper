@@ -1,4 +1,3 @@
-from requests.exceptions import HTTPError
 from bs4 import BeautifulSoup
 import re
 import csv
@@ -55,8 +54,6 @@ def rotate_boxer_urls():
         try:
             response = client.get(boxrec_url, params=PARAMS )
             response.raise_for_status()
-        except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')
         except Exception as err:
             print(f'Other error occurred: {err}')
         
