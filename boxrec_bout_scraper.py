@@ -31,26 +31,39 @@ def check_can_scrape(soup):
         print(f'SCRAPING...')
         grab_table_data(soup)
 
+bout_data_dict = {
+    'url': {
+        'bout_date': 'date',
+        'bout_info': {
+            'opp_url': 'opp_url',
+            'opp_name': 'opp_name',
+            'opp_wins': 'opp_wins',
+            'opp_losses': 'opp_losses',
+            'opp_draws': 'opp_draws',
+            'bout_result': 'bout_result',
+            'round_ended': 'round_ended'
+        }
+    }
+}
+
 def grab_table_data(soup):
-# TODO
-# Create a nest dict as below
-#bout_data_dict = {
-#    'url': {
-#        'bout_date': date,
-#        'bout_info': {
-#            'opponent_url': opponent_url,
-#            'opponent_wld': opponent_wld,
-#            'result': result,
-#            'round_ended': round_ended
-#        }
-#    }
-#}
     bout_hist_table = soup.find_all('table', {'class': 'dataTable'})
     for table_value in bout_hist_table:
         date = table_value.find_all('a', href=re.compile('^(/en/date?)'))
         for dates in date:
             dates.get_text()
-            
+        
+        a_tag_text = table_value.find_all('a', href=re.compile('^(/en/box-pro)'))
+        for string in a_tag_text:
+            grab_url = re.search('href="(.*)">', str(string))
+            opp_url = grab_url.group(1)
+            grab_name = re.search('>(.*)</a>', str(string))
+            opp_name = grab_name.group(1)
+
+        opp_wins = table_value.find_all('span', {'class': 'textWon'}).get_text()
+        opp_losses = table_value.find_all('span', {'class': 'textLoss'}).get_text()
+        opp_draws = table_value.find_all('span', {'class': 'textDraw'}).get_text()
+        print(f'{opp_wins}/{opp_losses}/{opp_draws}')
 
 
 launch_soup()
