@@ -51,9 +51,7 @@ def grab_table_data(soup, fighter_url):
     bout_hist_table = soup.find_all('table', {'class': 'dataTable'})
 
     for table_value in bout_hist_table:
-        text_bout_result = table_value.select('div[class*="boutResult"]')
-        for text in text_bout_result:
-            bout_result = text.get_text()
+
         date_text = table_value.find_all('a', href=re.compile('^(/en/date?)'))
         for dates in date_text:
             date = dates.get_text()
@@ -95,6 +93,3 @@ def grab_table_data(soup, fighter_url):
 
 
 launch_soup()
-
-"""
-"""
