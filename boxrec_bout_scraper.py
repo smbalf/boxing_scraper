@@ -1,11 +1,10 @@
 import requests
 import re
 from bs4 import BeautifulSoup
-import csv
+
 
 headers = {'User-Agent': 'Mozilla/5.0'}
 boxrec_url = 'https://boxrec.com/en/box-pro/15243'
-# Catching errors and printing
 
 def launch_soup():
     try:
@@ -29,7 +28,8 @@ def check_can_scrape(soup):
         exit()
     else:
         print(f'SCRAPING...')
-        grab_table_data(soup)
+        grab_table_data(soup, boxrec_url)
+
 
 bout_data_dict = {
     'url': {
@@ -46,13 +46,18 @@ bout_data_dict = {
     }
 }
 
-def grab_table_data(soup):
+def grab_table_data(soup, fighter_url):
+    fighter_url = fighter_url
     bout_hist_table = soup.find_all('table', {'class': 'dataTable'})
+
     for table_value in bout_hist_table:
+        text_bout_result = table_value.select('div[class*="boutResult"]')
+        for text in text_bout_result:
+            bout_result = text.get_text()
         date_text = table_value.find_all('a', href=re.compile('^(/en/date?)'))
         for dates in date_text:
             date = dates.get_text()
-        
+            
         a_tag_text = table_value.find_all('a', href=re.compile('^(/en/box-pro)'))
         for string in a_tag_text:
             grab_url = re.search('href="(.*)">', str(string))
@@ -66,18 +71,30 @@ def grab_table_data(soup):
         text_won = table_value.find_all('span', {'class': 'textWon'})
         for text in text_won:
             opp_wins = text.get_text()
+
         text_lost = table_value.find_all('span', {'class': 'textLost'})
         for text in text_lost:
             opp_losses = text.get_text()
+
         text_draw = table_value.find_all('span', {'class': 'textDraw'})
         for text in text_draw:
             opp_draws = text.get_text()
 
-        text_bout_result = table_value.find_all('div', {'class': 'boutResult bgL'})
+        text_debut = table_value.select('span[style="font-weight:bold;color:grey;"]')
+        for text in text_debut:
+            opp_debut = text.get_text()
+        
+        text_bout_result = table_value.select('div[class*="boutResult"]')
         for text in text_bout_result:
             bout_result = text.get_text()
 
 
 
+        
+        
+
 
 launch_soup()
+
+"""
+"""
