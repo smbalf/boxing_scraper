@@ -40,28 +40,45 @@ def write_to_csv(list_of_dict):
 # write_to_csv(bout_data_dict_list)
 
 b = {
-    3: {
-        'ab':3,
-        'ba':9
+    'Sam': {
+        1: {
+            'ab':3,
+            'ba':9
+        },
+        2: {
+            'ab':4,
+            'ba':10
+        }
     }
 }
 
 a = {
-    2: {
-        'ab':1,
-        'ba':2
+    'Inaki': {
+        1: {
+            'ab':2,
+            'ba':4
+        },
+        2: {
+            'ab':9,
+            'ba':0
+        }
     }
 }
 
 c = {
-    1: {
-        'ab': 4,
-        'ba': 5
+    'James': {
+        1: {
+            'ab':6,
+            'ba':1
+        },
+        2: {
+            'ab':7,
+            'ba':8
+        }
     }
 }
 
 g = {**a, **c}
-print(g)
 
 def create_merged_dict(boxer_dict, main_dict):
     main_dict = {**main_dict, **boxer_dict}
