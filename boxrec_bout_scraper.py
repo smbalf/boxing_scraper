@@ -186,7 +186,7 @@ def create_dict_DF(main_dict):
                             for i in main_dict.keys() 
                             for j in main_dict[i].keys()},
                         orient='index')
-    print(x)
+    x.to_csv('bout_data.csv', encoding='utf-8', header=True, index=True)
 
 def write_to_csv(list_of_dict):
   with open('bout_data.csv','w', encoding="utf-8", newline='') as bout_data_csv:
@@ -196,5 +196,5 @@ def write_to_csv(list_of_dict):
 
 
 # RUNNING THE SCRIPT
-rotate_boxer_urls() # PROXY
-# launch_soup()   # NO PROXY
+# rotate_boxer_urls() # PROXY
+launch_soup()   # NO PROXY
