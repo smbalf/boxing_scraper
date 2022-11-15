@@ -4,9 +4,9 @@ from bs4 import BeautifulSoup
 import pprint
 import csv
 from scrapingbee import ScrapingBeeClient
+import pandas as pd
 
-
-
+count = 0
 def rotate_boxer_urls():
     # Obtaining API key
     with open('api_key.txt', 'r') as key_file:
@@ -38,17 +38,19 @@ def rotate_boxer_urls():
             # Scrape the page!
             bs = BeautifulSoup(response.text, 'lxml')
 
-            check_can_scrape(bs)
-            
+            global count
+            if count <= 2:
+                check_can_scrape(bs)
+                count+=1
+            else:
+                break
             # Below check to see which url was scraped before moving to the next url
             print(boxrec_url)
             print('---------------------------------------------')
 
-
-headers = {'User-Agent': 'Mozilla/5.0'}
-boxrec_url = 'https://boxrec.com/en/box-pro/15243'
-
 def launch_soup():
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    boxrec_url = 'https://boxrec.com/en/box-pro/15243'
     try:
         response = requests.get(boxrec_url, headers=headers )
         response.raise_for_status()
@@ -153,9 +155,9 @@ def grab_table_data(soup):
     boxrec_dict(boxer_name, zipped_data)
 
 
-# bout_data_dict_list = []
+bout_data_dict_list = []
 def boxrec_dict(name, zipped_data):
-    # global bout_data_dict_list
+    global bout_data_dict_list
     bout_data_dict = {
         name: ({ 
             bn: {'bout_date': bd, 'opp_url': ou, 'opp_name': on, 'opp_wins': ow, 'opp_losses': ol, 'opp_draws': od, 'bout_result': br} 
@@ -163,20 +165,29 @@ def boxrec_dict(name, zipped_data):
             })
     }
 
-    #bout_data_dict_list.append(bout_data_dict)
+    bout_data_dict_list.append(bout_data_dict)
     #print(bout_data_dict_list)
 
     #print('writing to csv')
     #write_to_csv(bout_data_dict_list)
-    create_merged_dict(bout_data_dict, final_dict)
-
+    create_merged_dict(bout_data_dict_list, final_dict)
 
 final_dict = {}
 
-def create_merged_dict(boxer_dict, main_dict):
-    main_dict = {**main_dict, **boxer_dict}
+def create_merged_dict(bout_list, main_dict):
+    for boxer_dict in bout_list:
+        main_dict = {**main_dict, **boxer_dict}
+
+    create_dict_DF(main_dict)
     
-    
+
+def create_dict_DF(main_dict):
+    x = pd.DataFrame.from_dict({(i,j): main_dict[i][j] 
+                            for i in main_dict.keys() 
+                            for j in main_dict[i].keys()},
+                        orient='index')
+    print(x)
+
 def write_to_csv(list_of_dict):
   with open('bout_data.csv','w', encoding="utf-8", newline='') as bout_data_csv:
     writer = csv.DictWriter(bout_data_csv, fieldnames=boxer_name_list)
@@ -185,5 +196,5 @@ def write_to_csv(list_of_dict):
 
 
 # RUNNING THE SCRIPT
-# rotate_boxer_urls() # PROXY
-launch_soup()   # NO PROXY
+rotate_boxer_urls() # PROXY
+# launch_soup()   # NO PROXY

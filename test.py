@@ -78,12 +78,19 @@ c = {
     }
 }
 
-g = {**a, **c}
+g = {}
 
-def create_merged_dict(boxer_dict, main_dict):
-    main_dict = {**main_dict, **boxer_dict}
-    print(main_dict.keys())
+xx = [a, b, c]
 
+def create_merged_dict(xx, main_dict):
+    for boxer_dict in xx:
+        main_dict = {**main_dict, **boxer_dict}
+
+    create_dict_DF(main_dict)
+    
+    
+
+def create_dict_DF(main_dict):
     x = pd.DataFrame.from_dict({(i,j): main_dict[i][j] 
                             for i in main_dict.keys() 
                             for j in main_dict[i].keys()},
@@ -91,4 +98,7 @@ def create_merged_dict(boxer_dict, main_dict):
     
     print(x)
 
-create_merged_dict(b,g)
+create_merged_dict(xx,g)
+
+
+
