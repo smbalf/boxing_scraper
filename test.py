@@ -98,7 +98,10 @@ def create_dict_DF(main_dict):
     
     print(x)
 
-create_merged_dict(xx,g)
+# create_merged_dict(xx,g)
 
 
+xxx = pd.read_csv('bout_data.csv',index_col=[0,1])
+
+print(xxx)
 

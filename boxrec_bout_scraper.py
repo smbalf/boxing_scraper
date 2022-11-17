@@ -6,7 +6,6 @@ import csv
 from scrapingbee import ScrapingBeeClient
 import pandas as pd
 
-count = 0
 def rotate_boxer_urls():
     # Obtaining API key
     with open('api_key.txt', 'r') as key_file:
@@ -38,12 +37,8 @@ def rotate_boxer_urls():
             # Scrape the page!
             bs = BeautifulSoup(response.text, 'lxml')
 
-            global count
-            if count <= 2:
-                check_can_scrape(bs)
-                count+=1
-            else:
-                break
+            check_can_scrape(bs)
+
             # Below check to see which url was scraped before moving to the next url
             print(boxrec_url)
             print('---------------------------------------------')
@@ -186,7 +181,9 @@ def create_dict_DF(main_dict):
                             for i in main_dict.keys() 
                             for j in main_dict[i].keys()},
                         orient='index')
-    x.to_csv('bout_data.csv', encoding='utf-8', header=True, index=True)
+
+    x.to_csv('bout_data_two.csv', encoding='utf-8', mode='w', header=False, index=True,)
+
 
 def write_to_csv(list_of_dict):
   with open('bout_data.csv','w', encoding="utf-8", newline='') as bout_data_csv:
@@ -196,5 +193,5 @@ def write_to_csv(list_of_dict):
 
 
 # RUNNING THE SCRIPT
-# rotate_boxer_urls() # PROXY
-launch_soup()   # NO PROXY
+rotate_boxer_urls() # PROXY
+# launch_soup()   # NO PROXY
