@@ -6,6 +6,7 @@ import csv
 from scrapingbee import ScrapingBeeClient
 import pandas as pd
 
+
 def rotate_boxer_urls():
     # Obtaining API key
     with open('api_key.txt', 'r') as key_file:
